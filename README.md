@@ -17,7 +17,7 @@ Mais chacune possède un composant que vous devez voir apparaître.
 ### 4. Premier commit ?
 Vous avez modifié votre code (model.php). Vérifez votre configuration Git/Github en tentant un premier
 commit : 
--   git add .
+-       
 -   git commit -m "update credentials"
 -   git push
   
