@@ -48,11 +48,7 @@ INSERT INTO `Category` (`id`, `name`) VALUES
 (9, 'Fantaisie'),
 (10, 'Documentaire');
 
--- --------------------------------------------------------
 
---
--- Structure de la table `Movie`
---
 
 CREATE TABLE `Movie` (
   `id` int(11) NOT NULL,
@@ -65,6 +61,19 @@ CREATE TABLE `Movie` (
   `image` varchar(255) DEFAULT NULL,
   `trailer` varchar(255) DEFAULT NULL,
   `min_age` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `UserProfile`
+--
+
+CREATE TABLE `UserProfile` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `min_age` int(11) NOT NULL DEFAULT 0,
+  `avatar` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -88,11 +97,15 @@ ALTER TABLE `Category`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `Movie`
---
 ALTER TABLE `Movie`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_category` (`id_category`);
+
+--
+-- Index pour la table `UserProfile`
+--
+ALTER TABLE `UserProfile`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT pour les tables déchargées
@@ -109,6 +122,12 @@ ALTER TABLE `Category`
 --
 ALTER TABLE `Movie`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+
+--
+-- AUTO_INCREMENT pour la table `UserProfile`
+--
+ALTER TABLE `UserProfile`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- Contraintes pour les tables déchargées

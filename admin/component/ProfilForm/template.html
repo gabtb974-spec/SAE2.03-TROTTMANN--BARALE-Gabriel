@@ -1,0 +1,20 @@
+<div class="profil-card">
+    <h1>Gestion des profils</h1>
+    <form class="profil-form" id="profile-form" enctype="multipart/form-data">
+        <label for="name">Nom du profil</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="avatar">Avatar (facultatif)</label>
+        <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg, image/gif" />
+
+        <label for="age">Restriction d'âge</label>
+        <select id="age" name="age" required>
+            <option value="0">Tous publics</option>
+            <option value="12">12</option>
+            <option value="16">16</option>
+            <option value="18">18</option>
+        </select>
+
+        <button type="submit">Ajouter le profil</button>
+    </form>
+</div>

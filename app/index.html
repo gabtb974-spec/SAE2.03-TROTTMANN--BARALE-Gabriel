@@ -4,16 +4,20 @@
     <title>SAE2.03 APP</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/base.css?v=1" />
   </head>
 
   <body>
-    <header id="header"></header>
-
-    <section id="content"></section>
+    <div class="app-container">
+      <header id="header"></header>
+      <section id="content"></section>
+    </div>
 
     <script type="module">
       import { NavBar } from "./component/NavBar/script.js";
+      import { MovieCategory } from "./component/MovieCategory/script.js";
+      import { DataMovie } from "./data/dataMovie.js";
+      import { InfoFilms } from "./component/Info_Films/script.js";
 
       // Controleur
       // Rappel, écrire window.C plutôt que let C est nécessaire pour tester depuis la console du navigateur
@@ -26,8 +30,31 @@
         );
       };
 
-      C.start = function () {
-        V.renderNavBar("C.handlerAbout()");
+      C.handlerSelectMovie = function (movieId) {
+        C.showMovieInfo(movieId);
+      };
+
+      C.handlerListe = async function () {
+        await C.loadMovies();
+      };
+
+      C.showMovieInfo = async function (movieId) {
+        const movie = await DataMovie.getMovieById(movieId);
+        if (!movie) {
+          alert('Film introuvable.');
+          return;
+        }
+        V.renderInfoFilms(movie);
+      };
+
+      C.start = async function () {
+        V.renderNavBar("C.handlerAbout()", "C.handlerListe()");
+        await C.loadMovies();
+      };
+
+      C.loadMovies = async function () {
+        const movies = await DataMovie.requestMovies();
+        V.renderMovieCategories(movies, "C.handlerSelectMovie");
       };
 
       // Vue (contient tout ce qui est relatif à l'affichage)
@@ -40,12 +67,29 @@
        * Elle sélectionne l'élément HTML avec l'ID "header" et y insère le contenu
        * formaté par le composant NavBar.
        */
-      V.renderNavBar = function (hAbout) {
+
+
+
+
+      V.renderNavBar = function (hAbout, hListe) {
         let header = document.querySelector("#header");
-        header.innerHTML = NavBar.format(hAbout);
+        header.innerHTML = NavBar.format(hAbout, hListe);
       };
 
-      C.start(); // Démarre l'application
+      V.renderMovieCategories = function (movies, hSelectMovie) {
+        let content = document.querySelector("#content");
+        content.innerHTML = MovieCategory.format(movies, hSelectMovie);
+      };
+
+      V.renderInfoFilms = function (movie) {
+        let content = document.querySelector("#content");
+        content.innerHTML = InfoFilms.format(movie);
+      };
+
+
+
+
+      C.start();
     </script>
   </body>
 </html>

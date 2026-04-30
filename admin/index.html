@@ -5,17 +5,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./component/Formulaire/style.css" />
+    <link rel="stylesheet" href="./component/ProfilForm/style.css" />
   </head>
   <body>
     <section id="log"></section>
+    <section id="profile"></section>
+    <section id="movie"></section>
 
     <script type="module">
+      // Capture les erreurs non gérées
+      window.addEventListener('error', (event) => {
+        console.error('Erreur non gérée:', event.error);
+        console.error('Message:', event.message);
+        console.error('Stack:', event.error?.stack);
+      });
+
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('Promise rejection non gérée:', event.reason);
+        console.error('Stack:', event.reason?.stack);
+      });
       import { Log } from "./component/Log/script.js";
+      import { Formulaire } from "./component/Formulaire/script.js";
+      import { ProfileForm } from "./component/ProfilForm/script.js";
+      import { DataMovie } from "./data/dataMovie.js";
+      import { DataProfile } from "./data/dataProfile.js";
 
       window.C = {};
 
       C.start = function () {
         V.renderLog("Démarrage de l'application");
+        V.renderProfileForm();
+        V.renderForm();
       };
 
       window.V = {};
@@ -24,6 +45,27 @@
         let content = document.querySelector("#log");
         content.innerHTML = Log.format(txt);
       };
+
+      V.renderForm = async function () {
+        let categories = await DataMovie.getCategories();
+        let genresHtml = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+        let formSection = document.querySelector('#movie');
+        formSection.innerHTML = Formulaire.format(genresHtml);
+        const formElement = formSection.querySelector('#movie-form');
+        if (formElement) {
+          formElement.addEventListener('submit', event => Formulaire.submitForm(event, DataMovie.addMovie));
+        }
+      };
+      
+      V.renderProfileForm = function () {
+        let profileSection = document.querySelector('#profile');
+        profileSection.innerHTML = ProfileForm.format();
+        const profileForm = profileSection.querySelector('#profile-form');
+        if (profileForm) {
+          profileForm.addEventListener('submit', event => ProfileForm.submitForm(event, DataProfile.add));
+        }
+      };
+      
 
       C.start();
     </script>

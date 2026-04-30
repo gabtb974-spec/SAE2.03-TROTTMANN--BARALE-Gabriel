@@ -1,0 +1,30 @@
+.movie-category {
+  padding: 1.5rem;
+  color: #000;
+}
+
+.movie-category__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.movie-category__section {
+  margin-bottom: 2rem;
+}
+
+.movie-category__section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  color: #000;
+}
+
+.movie-category__section {
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+  .movie-category {
+    padding: 1rem;
+  }
+}

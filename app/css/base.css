@@ -5,3 +5,52 @@
 @import "./utilities.css" layer(utilities);
 
 @import "../component/NavBar/style.css" layer(components);
+@import "../component/MovieCategory/style.css" layer(components);
+@import "../component/Movies_List/style.css" layer(components);
+@import "../component/Info_Films/style.css" layer(components);
+
+html {
+	box-sizing: border-box;
+}
+
+*, *::before, *::after {
+	box-sizing: inherit;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background-color: hsl(0, 0%, 97%);
+	color: var(--color-black);
+	font-family: var(--ff-sans);
+}
+
+.app-container {
+	display: grid;
+	grid-template-columns: 280px 1fr;
+	min-height: 100vh;
+}
+
+header {
+	min-height: 100vh;
+	background: var(--color-bg);
+}
+
+#content {
+	padding: 2rem;
+	background: var(--color-white);
+}
+
+@media (max-width: 900px) {
+	.app-container {
+		grid-template-columns: 1fr;
+	}
+
+	header {
+		min-height: auto;
+	}
+
+	#content {
+		padding: 1.25rem;
+	}
+}
