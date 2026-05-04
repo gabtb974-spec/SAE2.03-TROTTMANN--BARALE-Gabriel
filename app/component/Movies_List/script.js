@@ -1,4 +1,4 @@
-let templateFile = await fetch("./component/Movies_List/template.html");
+let templateFile = await fetch(new URL('./template.html', import.meta.url));
 let template = await templateFile.text();
 
 let MoviesList = {};

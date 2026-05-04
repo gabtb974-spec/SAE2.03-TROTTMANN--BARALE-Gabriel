@@ -87,6 +87,10 @@ function getCategoriesController(){
     return getAllCategories();
 }
 
+function readProfilesController(){
+    return getAllProfiles();
+}
+
 function addProfileController(){
     $name = trim($_POST['name'] ?? '');
     $age = (int)($_POST['age'] ?? -1);

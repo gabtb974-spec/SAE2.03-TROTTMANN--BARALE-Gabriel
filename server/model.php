@@ -74,3 +74,16 @@ function getAllCategories(){
         return false;
     }
 }
+
+function getAllProfiles(){
+    try {
+        $cnx = new PDO("mysql:host=".HOST.";dbname=".DBNAME, DBLOGIN, DBPWD);
+        $sql = "SELECT id, name, min_age, avatar FROM UserProfile ORDER BY name";
+        $stmt = $cnx->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    } catch (Exception $e) {
+        error_log('Erreur BDD getAllProfiles: ' . $e->getMessage());
+        return false;
+    }
+}

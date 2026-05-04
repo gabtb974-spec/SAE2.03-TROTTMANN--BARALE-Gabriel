@@ -9,52 +9,84 @@
 
   <body>
     <div class="app-container">
-      <header id="header"></header>
-      <section id="content"></section>
+      <aside id="sidebar"></aside>
+      <main class="app-main">
+        <header id="topbar"></header>
+        <section id="content"></section>
+      </main>
     </div>
 
     <script type="module">
       import { NavBar } from "./component/NavBar/script.js";
       import { MovieCategory } from "./component/MovieCategory/script.js";
+      import { ProfileBanner } from "./component/ProfileBanner/script.js";
+      import { ProfileChooser } from "./component/ProfileChooser/script.js";
       import { DataMovie } from "./data/dataMovie.js";
+      import { DataProfile } from "./data/dataProfile.js";
       import { InfoFilms } from "./component/Info_Films/script.js";
 
-      // Controleur
-      // Rappel, écrire window.C plutôt que let C est nécessaire pour tester depuis la console du navigateur
-      // Une fois l'application terminée, on pourrait remettre let C.
+      // Contrôleur - gère les événements et la logique applicative
       window.C = {};
+      C.activeProfile = null;
+      C.profiles = [];
+      C.profileMenuOpen = false;
 
-      C.handlerAbout = function () {
-        alert(
-          "Ceci est une base de projet pour la SAE2.03 édition 2025. Bonne chance !"
-        );
+      // Gestionnaires d'événements
+      C.handlerAbout = function() {
+        alert("Ceci est une base de projet pour la SAE2.03 édition 2025. Bonne chance !");
       };
 
-      C.handlerSelectMovie = function (movieId) {
+      C.handlerListe = function() {
+        C.loadMovies();
+      };
+
+      C.handlerSelectMovie = function(movieId) {
         C.showMovieInfo(movieId);
       };
 
-      C.handlerListe = async function () {
-        await C.loadMovies();
+      C.handlerSelectProfile = function(profileId) {
+        const profile = C.profiles.find(p => p.id == profileId);
+        if (!profile) return;
+        C.activeProfile = profile.id;
+        V.renderProfileHeader(profile);
+        C.profileMenuOpen = false;
+        V.updateProfileMenu([]);
+        C.loadMovies();
       };
 
-      C.showMovieInfo = async function (movieId) {
-        const movie = await DataMovie.getMovieById(movieId);
-        if (!movie) {
-          alert('Film introuvable.');
-          return;
+      C.toggleProfileMenu = async function() {
+        if (C.profiles.length === 0) {
+          C.profiles = await DataProfile.read();
         }
-        V.renderInfoFilms(movie);
+        C.profileMenuOpen = !C.profileMenuOpen;
+        V.updateProfileMenu(C.profileMenuOpen ? C.profiles : []);
       };
 
-      C.start = async function () {
-        V.renderNavBar("C.handlerAbout()", "C.handlerListe()");
-        await C.loadMovies();
+      C.closeProfileMenu = function() {
+        C.profileMenuOpen = false;
+        V.updateProfileMenu([]);
       };
 
-      C.loadMovies = async function () {
+      C.showMovieInfo = async function(movieId) {
+        const movie = await DataMovie.getMovieById(movieId);
+        if (movie) V.renderInfoFilms(movie);
+      };
+
+      C.loadMovies = async function() {
         const movies = await DataMovie.requestMovies();
         V.renderMovieCategories(movies, "C.handlerSelectMovie");
+      };
+
+      C.start = async function() {
+        V.renderNavBar("C.handlerAbout()", "C.handlerListe()");
+        V.renderProfileHeader(null);
+        document.addEventListener("click", function(e) {
+          if (!e.target.closest(".profile-banner") && !e.target.closest(".profile-menu")) {
+            C.closeProfileMenu();
+          }
+        });
+        C.profiles = await DataProfile.read();
+        C.loadMovies();
       };
 
       // Vue (contient tout ce qui est relatif à l'affichage)
@@ -72,16 +104,78 @@
 
 
       V.renderNavBar = function (hAbout, hListe) {
-        let header = document.querySelector("#header");
-        header.innerHTML = NavBar.format(hAbout, hListe);
+        let sidebar = document.querySelector("#sidebar");
+        sidebar.innerHTML = NavBar.format(hAbout, hListe);
+      };
+
+      V.renderProfileHeader = function(profile) {
+        let topbar = document.querySelector("#topbar");
+        let profileButtonHtml = "";
+        if (!profile) {
+          profileButtonHtml = `
+            <div class="profile-banner-wrapper">
+              <button class="profile-banner profile-banner--topbar profile-banner--empty" type="button" onclick="C.toggleProfileMenu()">
+                <div class="profile-banner__avatar profile-banner__avatar-empty">?</div>
+                <div class="profile-banner__info">
+                  <div class="profile-banner__name">Choisir un profil</div>
+                  <div class="profile-banner__subtitle">-</div>
+                </div>
+                <span class="profile-banner__chevron">▾</span>
+              </button>
+              <div class="profile-menu"></div>
+            </div>
+          `;
+        } else {
+          profileButtonHtml = `
+            <div class="profile-banner-wrapper">
+              <button class="profile-banner profile-banner--topbar" type="button" onclick="C.toggleProfileMenu()">
+                ${ProfileBanner.format(profile)}
+              </button>
+              <div class="profile-menu"></div>
+            </div>
+          `;
+        }
+        topbar.innerHTML = profileButtonHtml;
       };
 
       V.renderMovieCategories = function (movies, hSelectMovie) {
+        C.closeProfileMenu();
         let content = document.querySelector("#content");
         content.innerHTML = MovieCategory.format(movies, hSelectMovie);
       };
 
+      V.renderProfileChooser = function (profiles) {
+        let content = document.querySelector("#content");
+        content.innerHTML = ProfileChooser.format(profiles);
+      };
+
+      V.updateProfileMenu = function (profiles) {
+        let menu = document.querySelector(".profile-menu");
+        if (!menu) return;
+        if (profiles.length === 0) {
+          menu.innerHTML = "";
+          menu.style.display = "none";
+          return;
+        }
+        const profilesHtml = profiles
+          .map(profile => {
+            const avatar = profile.avatar
+              ? `<img class="profile-menu__avatar" src="../server/images/${profile.avatar}" alt="${profile.name}" />`
+              : `<div class="profile-menu__avatar profile-menu__avatar--empty">${profile.name.charAt(0).toUpperCase()}</div>`;
+            return `
+              <button class="profile-menu__item" type="button" onclick="C.handlerSelectProfile('${profile.id}')">
+                ${avatar}
+                <span class="profile-menu__name">${profile.name}</span>
+              </button>
+            `;
+          })
+          .join("");
+        menu.innerHTML = profilesHtml;
+        menu.style.display = "block";
+      };
+
       V.renderInfoFilms = function (movie) {
+        C.closeProfileMenu();
         let content = document.querySelector("#content");
         content.innerHTML = InfoFilms.format(movie);
       };
@@ -90,7 +184,6 @@
 
 
       C.start();
-    </script>
-  </body>
-</html>
-<script type="module"></script>
+        </script>
+      </body>
+    </html>

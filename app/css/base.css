@@ -8,9 +8,13 @@
 @import "../component/MovieCategory/style.css" layer(components);
 @import "../component/Movies_List/style.css" layer(components);
 @import "../component/Info_Films/style.css" layer(components);
+@import "../component/ProfileChooser/style.css" layer(components);
+@import "../component/ProfileBanner/style.css" layer(components);
+
 
 html {
 	box-sizing: border-box;
+	
 }
 
 *, *::before, *::after {
@@ -20,30 +24,66 @@ html {
 body {
 	margin: 0;
 	min-height: 100vh;
-	background-color: hsl(0, 0%, 97%);
+	width: 100vw;
 	color: var(--color-black);
 	font-family: var(--ff-sans);
+	overflow-x: hidden;
 }
 
-.app-container {
-	display: grid;
-	grid-template-columns: 280px 1fr;
-	min-height: 100vh;
+ .app-container {
+ 	 display: grid;
+ 	 grid-template-columns: 260px 1fr;
+ 	 min-height: 100vh;
+ }
+
+.app-main {
+	display: flex;
+	flex-direction: column;
+	max-width: 100vw;
 }
 
-header {
+aside#sidebar {
 	min-height: 100vh;
 	background: var(--color-bg);
+	color: var(--color-fg);
 }
+
+#topbar {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	padding: 1rem 2rem;
+	position: fixed;
+    top: 0;
+	border-bottom: 1px solid var(--color-gray-light);
+	position: relative;
+	width: 100vw;
+}
+
+ header {
+	 background: var(--color-bg);
+	 position: sticky; 
+     top: 0;
+	 width: 100vw;
+ }
 
 #content {
 	padding: 2rem;
 	background: var(--color-white);
+	
 }
 
 @media (max-width: 900px) {
 	.app-container {
 		grid-template-columns: 1fr;
+	}
+
+	.app-main {
+		min-height: auto;
+	}
+
+	aside#sidebar {
+		min-height: auto;
 	}
 
 	header {

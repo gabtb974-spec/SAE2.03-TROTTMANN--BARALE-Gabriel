@@ -1,43 +1,28 @@
 import { MoviesList } from '../Movies_List/script.js';
-let templateFile = await fetch('./component/MovieCategory/template.html');
+let templateFile = await fetch(new URL('./template.html', import.meta.url));
 let template = await templateFile.text();
 
 let MovieCategory = {};
 
-function slugify(text) {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 MovieCategory.format = function(movies, hSelectMovie) {
-  const grouped = movies.reduce((acc, movie) => {
+  const grouped = {};
+  movies.forEach(movie => {
     const category = movie.category || 'Autres';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(movie);
-    return acc;
-  }, {});
+    if (!grouped[category]) grouped[category] = [];
+    grouped[category].push(movie);
+  });
 
-  const categories = Object.keys(grouped);
-
-  const categorySections = categories
-    .map(category => {
-      const id = slugify(category);
-      const categoryMovies = grouped[category];
-      const moviesHtml = categoryMovies.length > 0 
-        ? MoviesList.format(categoryMovies, hSelectMovie)
-        : '<p class="movie-category__empty">Aucun film disponible pour le moment</p>';
-      return `
-        <section class="movie-category__section" id="${id}">
-          <h2>${category}</h2>
-          ${moviesHtml}
-        </section>
-      `;
-    })
-    .join('');
+  let categorySections = '';
+  for (const category in grouped) {
+    const categoryMovies = grouped[category];
+    const moviesHtml = MoviesList.format(categoryMovies, hSelectMovie);
+    categorySections += `
+      <section class="movie-category__section">
+        <h2>${category}</h2>
+        ${moviesHtml}
+      </section>
+    `;
+  }
 
   let html = template;
   html = html.replace('{{categorySections}}', categorySections);

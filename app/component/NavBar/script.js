@@ -1,4 +1,4 @@
-let templateFile = await fetch("./component/NavBar/template.html");
+let templateFile = await fetch(new URL('./template.html', import.meta.url));
 let template = await templateFile.text();
 
 let NavBar = {};
