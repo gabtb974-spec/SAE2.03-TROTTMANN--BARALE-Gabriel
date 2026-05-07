@@ -1,6 +1,6 @@
 // URL où se trouve le répertoire "server" sur mmi.unilim.fr
 
-let HOST_URL = "https://trottmann-sae203.mmi-limoges.fr";
+let HOST_URL = "..";
 
 
 
