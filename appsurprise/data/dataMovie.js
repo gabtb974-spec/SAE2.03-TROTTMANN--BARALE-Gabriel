@@ -7,7 +7,7 @@ DataMovie.requestMovies = async function(age = 0){
     let url = HOST_URL + "/server/script.php?todo=readmovies&age=" + age;
     let answer = await fetch(url);
     
-    // 1. On lit la réponse brute en texte d'abord (ça ne plante jamais, même si c'est vide)
+    // 1. On lit la réponse brute en texte d'abord
     let text = await answer.text(); 
     
     try {
@@ -15,12 +15,40 @@ DataMovie.requestMovies = async function(age = 0){
         let data = JSON.parse(text); 
         return data;
     } catch (error) {
-        // 3. Si ça plante, on affiche le vrai coupable dans la console !
+        // 3. Affichage de l'erreur
         console.error("🚨 Le serveur n'a pas renvoyé de JSON valide.");
         console.error("URL appelée :", url);
-        console.error("Réponse reçue du serveur :", text); // C'est ici que tu verras l'erreur PHP !
-        
-        // On retourne un tableau vide pour éviter que le reste du site plante
+        console.error("Réponse reçue du serveur :", text); 
         return []; 
     }
 }
+
+DataMovie.requestFeatured = async function(age = 0){
+    let answer = await fetch(HOST_URL + "/server/script.php?todo=readfeaturedmovies&age=" + age);
+    let text = await answer.text();
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("🚨 Erreur JSON sur requestFeatured :", text);
+        return [];
+    }
+}
+
+DataMovie.getMovieById = async function(id) {
+    let movies = await DataMovie.requestMovies();
+    return movies.find(movie => String(movie.id) === String(id)) || null;
+}
+
+DataMovie.searchMovies = async function(keyword, age = 0) {
+    let answer = await fetch(HOST_URL + "/server/script.php?todo=searchmovies&keyword=" + encodeURIComponent(keyword) + "&age=" + age);
+    let text = await answer.text();
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+         console.error("🚨 Erreur JSON sur searchMovies :", text);
+         return [];
+    }
+}
+
+// LIGNE INDISPENSABLE POUR QUE L'INDEX.HTML PUISSE L'UTILISER :
+export {DataMovie};
