@@ -41,6 +41,37 @@
   border-radius: 0.25rem;
 }
 
+.movies__item-content {
+  width: 100%;
+}
+
+.movies__favorite-button {
+  margin-top: 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 0.65rem;
+  padding: 0.8rem 1rem;
+  color: var(--color-black);
+  font-weight: 700;
+ 
+}
+
+
+
+.movies__favorite-button--added {
+  background: rgba(255, 255, 255, 0.15);
+  cursor: default;
+}
+
+.movies__remove-button {
+  background: #dc3545; /* Rouge pour retirer */
+  color: white;
+}
+
+.movies__remove-button:hover {
+  background: #c82333;
+}
+
 .movies__title {
   display: flex;
   margin-bottom: 0.5rem;

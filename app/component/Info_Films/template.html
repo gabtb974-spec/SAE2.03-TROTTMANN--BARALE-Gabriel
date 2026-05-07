@@ -1,9 +1,12 @@
-<section class="hero-container" style="">
+<section class="hero-container">
   <div class="hero_content">
     <h1 class="movie_title">{{movie.title}}</h1>
     <div>
       <img src="{{movie.image}}" alt="{{movie.title}}" class="movie_image" />
     </div>
+    <button class="movie_favorite_button {{favoriteClass}}" type="button" {{favoriteDisabled}} onclick="C.handlerToggleFavorite('{{movie.id}}')">
+      {{favoriteLabel}}
+    </button>
     <a href="{{movie.trailer}}" target="_blank">Regarder le trailer</a>
     <div><p>{{movie.synopsis}}</p></div>
 

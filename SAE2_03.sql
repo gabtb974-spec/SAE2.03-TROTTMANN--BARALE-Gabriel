@@ -61,6 +61,7 @@ CREATE TABLE `Movie` (
   `image` varchar(255) DEFAULT NULL,
   `trailer` varchar(255) DEFAULT NULL,
   `min_age` int(11) DEFAULT NULL
+  ,`is_featured` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -76,8 +77,19 @@ CREATE TABLE `UserProfile` (
   `avatar` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Déchargement des données de la table `Movie`
+
+CREATE TABLE `Favorite` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `profile_id` int(11) NOT NULL,
+  `movie_id` int(11) NOT NULL,
+  UNIQUE KEY `profile_movie` (`profile_id`,`movie_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Index pour la table `Favorite`
+ALTER TABLE `Favorite`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `profile_id` (`profile_id`),
+  ADD KEY `movie_id` (`movie_id`);
 --
 
 INSERT INTO `Movie` (`id`, `name`, `year`, `length`, `description`, `director`, `id_category`, `image`, `trailer`, `min_age`) VALUES

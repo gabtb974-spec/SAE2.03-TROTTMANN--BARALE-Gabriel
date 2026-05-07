@@ -1,0 +1,28 @@
+.stats {
+  padding: 20px;
+}
+
+.stats h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.stats__grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.stats__item {
+  border: 1px solid #ccc;
+  padding: 15px;
+  background: #f9f9f9;
+}
+
+.stats__item h2 {
+  margin-top: 0;
+}
+
+.stats__item p {
+  margin: 5px 0;
+}

@@ -56,6 +56,10 @@ if ( isset($_REQUEST['todo']) ){
       $data = readMoviesController();
       break;
 
+    case 'readfeaturedmovies':
+      $data = readFeaturedMoviesController();
+      break;
+
     case 'addmovie':
       $data = addMovieController();
       break;
@@ -67,8 +71,26 @@ if ( isset($_REQUEST['todo']) ){
     case 'getcategories':
       $data = getCategoriesController();
       break;
+    case 'readfavorites':
+      $data = readFavoritesController();
+      break;
     case 'addprofile':
       $data = addProfileController();
+      break;
+    case 'addfavorite':
+      $data = addFavoriteController();
+      break;
+    case 'removefavorite':
+      $data = removeFavoriteController();
+      break;
+    case 'readstats':
+      $data = readStatsController();
+      break;
+    case 'searchmovies':
+      $data = searchMoviesController();
+      break;
+    case 'updatefeatured':
+      $data = updateFeaturedController();
       break;
 
 

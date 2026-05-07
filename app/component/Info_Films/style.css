@@ -2,7 +2,7 @@ section.hero-container {
 	position: relative;
 	min-height: 75vh;
 	overflow: hidden;
-	color: black;
+	color: var(--color-black);
 	display: flex;
 	align-items: flex-end;
 	padding: 0;
@@ -39,11 +39,11 @@ section.hero-container::before {
 	object-fit: cover;
 	opacity: 1;
 	max-width: 400px;
-	max-height: 300px;
+	
 }
 
 .hero_content h1.movie_title {
-	font-size: clamp(2.4rem, 4vw, 4.5rem);
+	font-size: 3rem;
 	margin: 0 0 24px;
 	line-height: 1.05;
 	letter-spacing: -0.04em;
@@ -54,12 +54,10 @@ section.hero-container::before {
 	align-items: center;
 	justify-content: center;
 	background: #ffffff;
-	color: #000;
+	color: var(--color-black);
 	padding: 14px 26px;
 	border-radius: 0;
 	font-weight: 700;
-	text-decoration: none;
-	transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .hero_content a:hover {
@@ -67,9 +65,34 @@ section.hero-container::before {
 	opacity: 0.95;
 }
 
+.movie_favorite_button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 1rem 0;
+	padding: 0.85rem 1rem;
+	border: none;
+	
+	
+	color: var(--color-black);
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.movie_favorite_button:hover {
+	
+	opacity: 0.95;
+}
+
+.movie_favorite_button--added {
+	
+	cursor: default;
+}
+
 .hero_content p {
 	max-width: 70ch;
-	color: black;
+	color: var(--color-black);
 	line-height: 1.8;
 	margin: 22px 0 0;
 }
@@ -94,11 +117,11 @@ section.hero-container::before {
 	margin: 0;
 	font-size: 0.95rem;
 	font-weight: 600;
-	color: black;
+	color: var(--color-black);
 }
 
 .hero_content_left h1 {
-	color: black;
+	color: var(--color-black);
 	font-size: 1rem;
 	text-transform: uppercase;
 	letter-spacing: 0.12em;

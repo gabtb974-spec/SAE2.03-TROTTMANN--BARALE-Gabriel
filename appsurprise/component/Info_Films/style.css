@@ -1,0 +1,139 @@
+
+.hero-container {
+    width: 100%;
+    background-color: #fff;
+}
+
+
+.hero_image_wrapper {
+    width: 100%;
+    height: 65vh; 
+    overflow: hidden;
+}
+
+.movie_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%; 
+    display: block;
+}
+
+
+.hero_content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 30px;
+    
+    
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; 
+    align-items: flex-start;
+    gap: 60px; 
+}
+
+
+.hero_col_left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 250px; 
+    flex-shrink: 0; 
+}
+
+
+.watch_button {
+    background: #000;
+    color: #fff;
+    padding: 14px 24px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.hero_meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hero_meta h1 {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #000;
+}
+
+
+.movie_favorite_button {
+    background: transparent;
+    border: none; 
+    color: #000;
+    padding: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-align: left;
+    text-decoration: underline; 
+}
+
+
+.hero_col_right {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* Grand Titre */
+.movie_title {
+    font-size: 3.8rem;
+    margin: 0 0 20px 0; /* Marge en bas pour séparer du texte */
+    line-height: 1;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: #000;
+}
+
+/* Texte de description */
+.movie_synopsis p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 75ch; /* Longueur de lecture parfaite */
+    color: #000;
+}
+
+/* =========================================
+   VERSION MOBILE (Smartphone)
+   ========================================= */
+@media (max-width: 900px) {
+    .hero_image_wrapper {
+        height: 45vh; /* Image moins haute */
+    }
+
+    .hero_content {
+        flex-direction: column; /* Repasse d'une ligne à une colonne ! */
+        gap: 30px;
+        padding: 30px 24px;
+    }
+
+    .hero_col_left {
+        width: 100%;
+        order: 2; 
+    }
+
+    .hero_col_right {
+        order: 1; 
+    }
+
+    .movie_title {
+        font-size: 2.5rem;
+    }
+}

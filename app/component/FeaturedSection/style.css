@@ -1,0 +1,108 @@
+.featured-section {
+  padding: 0;
+  min-height: calc(100vh - 6rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.featured-section__header {
+  margin-bottom: 1rem;
+}
+
+.featured-section h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.featured-section__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: auto;
+  width: 100%;
+  max-height: calc(100vh - 10rem);
+}
+
+.featured-card {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  min-height: calc(100vh - 10rem);
+  max-height: calc(100vh - 10rem);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  overflow: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  background-color: #111;
+}
+
+.featured-card__overlay {
+  position: absolute;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.8) 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 2rem;
+}
+
+.featured-card__body {
+  max-width: 400px;
+  text-align: right;
+}
+
+.featured-card__tag {
+  display: inline-flex;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.featured-card__title {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1;
+  color: #fff;
+}
+
+.featured-card__description {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  max-height: 10rem;
+  overflow: hidden;
+}
+
+.featured-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+.featured-section__empty {
+  margin: 0;
+  color: #555;
+}
+
+.featured-section__cards::-webkit-scrollbar {
+  display: none;
+}
+
+.featured-section__cards {
+  scrollbar-width: none;
+}

@@ -1,0 +1,19 @@
+<nav class="navbar font-sans">
+  <div class="navbar__brand">
+    <img src="../img/Filmrise.svg.png" alt="Logo" class="navbar__logo" />
+  </div>
+  <div class="navbar__search">
+    <input id="navbar-search-input" class="navbar__search-input" type="text" placeholder="Rechercher un film..." />
+  </div>
+  <div class="navbar__menu">
+    <ul class="navbar__list">
+      <li class="navbar__item" onclick="{{hAbout}}">ABOUT</li>
+      <li class="navbar__item" onclick="{{hListe}}">LISTE</li>
+      <li class="navbar__item" onclick="{{hStats}}">STATISTIQUES</li>
+      <li class="navbar__item navbar__profile-dropdown">
+        <button class="navbar__profile-button" type="button" onclick="{{hProfile}}">PROFIL</button>
+        <div class="navbar__profile-menu"></div>
+      </li>
+    </ul>
+  </div>
+</nav>

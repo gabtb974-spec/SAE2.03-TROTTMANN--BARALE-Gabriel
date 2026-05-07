@@ -9,7 +9,6 @@
 
   <body>
     <div class="app-container">
-      <aside id="sidebar"></aside>
       <main class="app-main">
         <header id="topbar"></header>
         <section id="content"></section>
@@ -19,39 +18,126 @@
     <script type="module">
       import { NavBar } from "./component/NavBar/script.js";
       import { MovieCategory } from "./component/MovieCategory/script.js";
+      import { FeaturedSection } from "./component/FeaturedSection/script.js";
       import { ProfileBanner } from "./component/ProfileBanner/script.js";
       import { ProfileChooser } from "./component/ProfileChooser/script.js";
       import { DataMovie } from "./data/dataMovie.js";
       import { DataProfile } from "./data/dataProfile.js";
+      import { DataFavorite } from "./data/dataFavorite.js";
       import { InfoFilms } from "./component/Info_Films/script.js";
+      import { Stats } from "./component/Stats/script.js";
+      import { DataStats } from "./data/dataStats.js";
 
       // Contrôleur - gère les événements et la logique applicative
       window.C = {};
       C.activeProfile = null;
       C.profiles = [];
+      C.favorites = [];
       C.profileMenuOpen = false;
 
       // Gestionnaires d'événements
       C.handlerAbout = function() {
+        if (window.statsInterval) clearInterval(window.statsInterval);
         alert("Ceci est une base de projet pour la SAE2.03 édition 2025. Bonne chance !");
       };
 
       C.handlerListe = function() {
+        if (window.statsInterval) clearInterval(window.statsInterval);
         C.loadMovies();
+      };
+
+      C.handlerStats = async function() {
+        const stats = await DataStats.requestStats();
+        V.renderStats(stats);
+        // Auto-refresh every 30 seconds
+        if (window.statsInterval) clearInterval(window.statsInterval);
+        window.statsInterval = setInterval(async () => {
+          const newStats = await DataStats.requestStats();
+          V.renderStats(newStats);
+        }, 30000);
+      };
+
+      C.handlerSearch = async function(keyword) {
+        if (window.statsInterval) clearInterval(window.statsInterval);
+        if (!keyword || keyword.trim() === '') {
+          C.loadMovies();
+          return;
+        }
+        const age = C.activeProfile ? C.activeProfile.min_age : 100;
+        const results = await DataMovie.searchMovies(keyword, age);
+        results.forEach(movie => {
+          movie.isFavorited = C.favorites.includes(String(movie.id));
+        });
+        V.renderSearchResults(results, keyword);
       };
 
       C.handlerSelectMovie = function(movieId) {
         C.showMovieInfo(movieId);
       };
 
-      C.handlerSelectProfile = function(profileId) {
+      C.handlerSelectProfile = async function(profileId) {
         const profile = C.profiles.find(p => p.id == profileId);
         if (!profile) return;
-        C.activeProfile = profile.id;
+        C.activeProfile = profile;
         V.renderProfileHeader(profile);
         C.profileMenuOpen = false;
         V.updateProfileMenu([]);
+        await C.loadFavorites();
         C.loadMovies();
+      };
+
+      C.loadFavorites = async function() {
+        if (!C.activeProfile) {
+          C.favorites = [];
+          return [];
+        }
+        const favorites = await DataFavorite.read(C.activeProfile.id);
+        C.favorites = favorites.map(movie => String(movie.id));
+        return favorites;
+      };
+
+      C.handlerToggleFavorite = async function(movieId) {
+        if (!C.activeProfile) {
+          alert('Choisissez un profil pour ajouter un favori.');
+          return;
+        }
+        if (C.favorites.includes(String(movieId))) {
+          alert('Ce film est déjà dans vos favoris.');
+          return;
+        }
+        const result = await DataFavorite.add(C.activeProfile.id, movieId);
+        if (result.success) {
+          alert(result.message);
+          await C.loadFavorites();
+          C.loadMovies();
+        } else {
+          alert(result.message || 'Erreur lors de l\'ajout aux favoris.');
+        }
+      };
+
+      C.handlerRemoveFavorite = async function(movieId) {
+        if (!C.activeProfile) {
+          alert('Choisissez un profil pour retirer un favori.');
+          return;
+        }
+        const result = await DataFavorite.remove(C.activeProfile.id, movieId);
+        if (result.success) {
+          alert(result.message);
+          await C.loadFavorites();
+          C.handlerShowFavorites(); // Recharger la vue des favoris
+        } else {
+          alert(result.message || 'Erreur lors de la suppression des favoris.');
+        }
+      };
+
+      C.handlerShowFavorites = async function() {
+        if (window.statsInterval) clearInterval(window.statsInterval);
+        if (!C.activeProfile) {
+          alert('Choisissez un profil pour voir vos favoris.');
+          return;
+        }
+        const favorites = await C.loadFavorites();
+        V.renderFavorites(favorites);
       };
 
       C.toggleProfileMenu = async function() {
@@ -68,17 +154,45 @@
       };
 
       C.showMovieInfo = async function(movieId) {
+        if (window.statsInterval) clearInterval(window.statsInterval);
         const movie = await DataMovie.getMovieById(movieId);
+        if (movie) {
+          movie.isFavorited = C.favorites.includes(String(movie.id));
+        }
         if (movie) V.renderInfoFilms(movie);
       };
 
       C.loadMovies = async function() {
-        const movies = await DataMovie.requestMovies();
-        V.renderMovieCategories(movies, "C.handlerSelectMovie");
+        const age = C.activeProfile ? C.activeProfile.min_age : 100;
+        const movies = await DataMovie.requestMovies(age);
+        const featured = await DataMovie.requestFeatured(age);
+        movies.forEach(movie => {
+          movie.isFavorited = C.favorites.includes(String(movie.id));
+        });
+        featured.forEach(movie => {
+          movie.isFavorited = C.favorites.includes(String(movie.id));
+        });
+        const featuredIds = new Set(featured.map(movie => String(movie.id)));
+        const moviesWithoutFeatured = movies.filter(movie => !featuredIds.has(String(movie.id)));
+        V.renderHome(featured, moviesWithoutFeatured, "C.handlerSelectMovie");
+      };
+
+      C.bindSearchInput = function() {
+        const searchInput = document.querySelector('#navbar-search-input');
+        if (!searchInput) return;
+        searchInput.addEventListener('input', function(event) {
+          C.handlerSearch(event.target.value);
+        });
+        searchInput.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            C.handlerSearch(event.target.value);
+          }
+        });
       };
 
       C.start = async function() {
-        V.renderNavBar("C.handlerAbout()", "C.handlerListe()");
+        V.renderNavBar("C.handlerAbout()", "C.handlerListe()", "C.handlerStats()");
         V.renderProfileHeader(null);
         document.addEventListener("click", function(e) {
           if (!e.target.closest(".profile-banner") && !e.target.closest(".profile-menu")) {
@@ -103,13 +217,29 @@
 
 
 
-      V.renderNavBar = function (hAbout, hListe) {
-        let sidebar = document.querySelector("#sidebar");
-        sidebar.innerHTML = NavBar.format(hAbout, hListe);
+      V.renderNavBar = function (hAbout, hListe, hStats) {
+        let topbar = document.querySelector("#topbar");
+        if (!topbar) return;
+        topbar.innerHTML = `
+          <div class="topbar__nav">
+            ${NavBar.format(hAbout, hListe, hStats)}
+          </div>
+          <div class="topbar__profile"></div>
+        `;
+        C.bindSearchInput();
       };
 
       V.renderProfileHeader = function(profile) {
-        let topbar = document.querySelector("#topbar");
+        let profileContainer = document.querySelector(".topbar__profile");
+        if (!profileContainer) {
+          const topbar = document.querySelector("#topbar");
+          if (!topbar) return;
+          topbar.innerHTML = `
+            <div class="topbar__nav"></div>
+            <div class="topbar__profile"></div>
+          `;
+          profileContainer = document.querySelector(".topbar__profile");
+        }
         let profileButtonHtml = "";
         if (!profile) {
           profileButtonHtml = `
@@ -135,7 +265,7 @@
             </div>
           `;
         }
-        topbar.innerHTML = profileButtonHtml;
+        profileContainer.innerHTML = profileButtonHtml;
       };
 
       V.renderMovieCategories = function (movies, hSelectMovie) {
@@ -144,9 +274,42 @@
         content.innerHTML = MovieCategory.format(movies, hSelectMovie);
       };
 
+      V.renderHome = function(featured, movies, hSelectMovie) {
+        C.closeProfileMenu();
+        let content = document.querySelector("#content");
+        content.innerHTML = FeaturedSection.format(featured, hSelectMovie) + MovieCategory.format(movies, hSelectMovie);
+        FeaturedSection.attachScrollBoundary();
+      };
+
+      V.renderStats = function(stats) {
+        C.closeProfileMenu();
+        let content = document.querySelector("#content");
+        content.innerHTML = Stats.format(stats);
+      };
+
+      V.renderSearchResults = function(results, keyword) {
+        C.closeProfileMenu();
+        let content = document.querySelector("#content");
+        if (results.length === 0) {
+          content.innerHTML = `<h2>Résultats de recherche pour "${keyword}"</h2><p>Aucun film ne correspond à votre recherche.</p>`;
+          return;
+        }
+        content.innerHTML = `<h2>Résultats de recherche pour "${keyword}"</h2>${MovieCategory.format(results, "C.handlerSelectMovie")}`;
+      };
+
       V.renderProfileChooser = function (profiles) {
         let content = document.querySelector("#content");
         content.innerHTML = ProfileChooser.format(profiles);
+      };
+
+      V.renderFavorites = function (favorites) {
+        let content = document.querySelector("#content");
+        let title = `<h2>Mes favoris</h2>`;
+        if (!favorites || favorites.length === 0) {
+          content.innerHTML = `${title}<p>Votre liste de favoris est vide.</p>`;
+          return;
+        }
+        content.innerHTML = `${title}${MovieCategory.format(favorites, "C.handlerSelectMovie", "C.handlerRemoveFavorite")}`;
       };
 
       V.updateProfileMenu = function (profiles) {
@@ -156,6 +319,14 @@
           menu.innerHTML = "";
           menu.style.display = "none";
           return;
+        }
+        let favoritesAction = '';
+        if (C.activeProfile) {
+          favoritesAction = `
+            <button class="profile-menu__action" type="button" onclick="C.handlerShowFavorites()">
+              Voir mes favoris
+            </button>
+          `;
         }
         const profilesHtml = profiles
           .map(profile => {
@@ -170,7 +341,7 @@
             `;
           })
           .join("");
-        menu.innerHTML = profilesHtml;
+        menu.innerHTML = favoritesAction + profilesHtml;
         menu.style.display = "block";
       };
 

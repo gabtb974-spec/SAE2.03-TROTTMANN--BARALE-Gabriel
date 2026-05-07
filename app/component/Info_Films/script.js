@@ -4,24 +4,25 @@ let template = await templateFile.text();
 let InfoFilms = {};
 
 InfoFilms.format = function(movie) {
-  let html = template;
-  const title = movie.name || '';
-  const image = movie.image ? `../server/images/${movie.image}` : '';
-  const synopsis = movie.description || '';
-  const trailer = movie.trailer || '#';
-  const category = movie.category || '';
-  const age = movie.min_age === 0 ? 'Tous publics' : `${movie.min_age}+`;
-  const year = movie.year || '';
-  const director = movie.director || '';
+  const replacements = {
+    '{{movie.title}}': movie.name || '',
+    '{{movie.image}}': movie.image ? `../server/images/${movie.image}` : '',
+    '{{movie.synopsis}}': movie.description || '',
+    '{{movie.trailer}}': movie.trailer || '#',
+    '{{movie.category}}': movie.category || '',
+    '{{movie.age_restriction}}': movie.min_age === 0 ? 'Tous publics' : `${movie.min_age}+`,
+    '{{movie.release_year}}': movie.year || '',
+    '{{movie.director}}': movie.director || '',
+    '{{movie.id}}': movie.id || '',
+    '{{favoriteLabel}}': (movie.isFavorited ? 'Déjà favori' : 'Ajouter aux favoris'),
+    '{{favoriteClass}}': (movie.isFavorited ? 'movie_favorite_button--added' : ''),
+    '{{favoriteDisabled}}': (movie.isFavorited ? 'disabled' : '')
+  };
 
-  html = html.replace('{{movie.title}}', title);
-  html = html.replace('{{movie.image}}', image);
-  html = html.replace('{{movie.synopsis}}', synopsis);
-  html = html.replace('{{movie.trailer}}', trailer);
-  html = html.replace('{{movie.category}}', category);
-  html = html.replace('{{movie.age_restriction}}', age);
-  html = html.replace('{{movie.release_year}}', year);
-  html = html.replace('{{movie.director}}', director);
+  let html = template;
+  for (const [key, value] of Object.entries(replacements)) {
+    html = html.replace(key, value);
+  }
   return html;
 };
 

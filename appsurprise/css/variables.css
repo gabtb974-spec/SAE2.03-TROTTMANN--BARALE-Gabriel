@@ -1,0 +1,17 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+:root {
+  /* Primitive Tokens */
+  --color-black: #000;
+  --color-white: hsl(0, 0%, 100%);
+  --color-gray-light: hsl(0, 0%, 80%);
+  --color-gray: #283337;
+  --color-gray-dark: #141D21;
+  --ff-sans: "Rubik", "bold";
+
+  /* Sementic Tokens */
+  --color-fg: var(--color-black);
+  --color-bg: var(--color-gray-dark);
+  --color-bg2: var(--color-gray)
+}

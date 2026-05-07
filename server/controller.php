@@ -21,23 +21,16 @@
 require("model.php");
 
 
-function readMoviesController(){
-    $movies = getAllMovies();
-    return $movies;
-}
+function validateMovieData($postData, $filesData) {
+    $title = trim($postData['title'] ?? '');
+    $director = trim($postData['director'] ?? '');
+    $release_year = (int)($postData['release_year'] ?? 0);
+    $duration = (int)($postData['duration'] ?? 0);
+    $synopsis = trim($postData['synopsis'] ?? '');
+    $genre = (int)($postData['genre'] ?? 0);
+    $trailer = trim($postData['trailer'] ?? '');
+    $age = (int)($postData['age'] ?? 0);
 
-function addMovieController(){
-    // Récupérer les données POST
-    $title = trim($_POST['title'] ?? '');
-    $director = trim($_POST['director'] ?? '');
-    $release_year = (int)($_POST['release_year'] ?? 0);
-    $duration = (int)($_POST['duration'] ?? 0);
-    $synopsis = trim($_POST['synopsis'] ?? '');
-    $genre = (int)($_POST['genre'] ?? 0);
-    $trailer = trim($_POST['trailer'] ?? '');
-    $age = (int)($_POST['age'] ?? 0);
-
-    // Validation côté serveur
     if (empty($title)) {
         return ['success' => false, 'message' => 'Erreur : Le titre du film est obligatoire.'];
     }
@@ -64,15 +57,38 @@ function addMovieController(){
         return ['success' => false, 'message' => 'Erreur : Le lien de la bande annonce est obligatoire.'];
     }
 
-    // Gestion de l'upload de l'image
     $image = '';
-    if (isset($_FILES['poster']) && $_FILES['poster']['error'] == 0) {
-        $image = basename($_FILES['poster']['name']);
+    if (isset($filesData['poster']) && $filesData['poster']['error'] == 0) {
+        $image = basename($filesData['poster']['name']);
         $targetPath = 'images/' . $image;
-        if (!move_uploaded_file($_FILES['poster']['tmp_name'], $targetPath)) {
+        if (!move_uploaded_file($filesData['poster']['tmp_name'], $targetPath)) {
             return ['success' => false, 'message' => 'Erreur : Impossible de télécharger l\'image.'];
         }
     }
+
+    return ['success' => true, 'data' => [$title, $director, $release_year, $duration, $synopsis, $genre, $image, $trailer, $age]];
+}
+
+
+function readMoviesController(){
+    $age = (int)($_REQUEST['age'] ?? 0);
+    if ($age < 0) $age = 0;
+    $movies = getAllMovies($age);
+    return $movies;
+}
+
+function readFeaturedMoviesController(){
+    $age = (int)($_REQUEST['age'] ?? 0);
+    if ($age < 0) $age = 0;
+    return getFeaturedMovies($age);
+}
+
+function addMovieController(){
+    $validation = validateMovieData($_POST, $_FILES);
+    if (!$validation['success']) {
+        return $validation;
+    }
+    list($title, $director, $release_year, $duration, $synopsis, $genre, $image, $trailer, $age) = $validation['data'];
 
     // Ajouter le film à la base de données
     $result = addMovie($title, $director, $release_year, $duration, $synopsis, $genre, $image, $trailer, $age);
@@ -87,13 +103,9 @@ function getCategoriesController(){
     return getAllCategories();
 }
 
-function readProfilesController(){
-    return getAllProfiles();
-}
-
-function addProfileController(){
-    $name = trim($_POST['name'] ?? '');
-    $age = (int)($_POST['age'] ?? -1);
+function validateProfileData($postData, $filesData) {
+    $name = trim($postData['name'] ?? '');
+    $age = (int)($postData['age'] ?? -1);
 
     if (empty($name)) {
         return ['success' => false, 'message' => 'Erreur : Le nom du profil est obligatoire.'];
@@ -105,8 +117,8 @@ function addProfileController(){
     }
 
     $avatar = null;
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-        $avatarInfo = pathinfo($_FILES['avatar']['name']);
+    if (isset($filesData['avatar']) && $filesData['avatar']['error'] === UPLOAD_ERR_OK) {
+        $avatarInfo = pathinfo($filesData['avatar']['name']);
         $extension = strtolower($avatarInfo['extension'] ?? '');
         $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
         if (!in_array($extension, $allowedExtensions, true)) {
@@ -114,14 +126,105 @@ function addProfileController(){
         }
         $avatar = uniqid('profile_') . '.' . $extension;
         $targetPath = 'images/' . $avatar;
-        if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $targetPath)) {
+        if (!move_uploaded_file($filesData['avatar']['tmp_name'], $targetPath)) {
             return ['success' => false, 'message' => 'Erreur : Impossible de télécharger l\'avatar.'];
         }
     }
+
+    return ['success' => true, 'data' => [$name, $age, $avatar]];
+}
+
+
+function readProfilesController(){
+    return getAllProfiles();
+}
+
+function addProfileController(){
+    $validation = validateProfileData($_POST, $_FILES);
+    if (!$validation['success']) {
+        return $validation;
+    }
+    list($name, $age, $avatar) = $validation['data'];
 
     $result = addProfile($name, $age, $avatar);
     if ($result) {
         return ['success' => true, 'message' => 'Le profil a été ajouté avec succès.'];
     }
     return ['success' => false, 'message' => 'Erreur lors de l\'ajout du profil en base de données.'];
+}
+
+function readFavoritesController(){
+    $profileId = (int)($_REQUEST['profile_id'] ?? 0);
+    if ($profileId <= 0) {
+        return [];
+    }
+    return getFavoritesByProfile($profileId);
+}
+
+function addFavoriteController(){
+    $profileId = (int)($_POST['profile_id'] ?? 0);
+    $movieId = (int)($_POST['movie_id'] ?? 0);
+
+    if ($profileId <= 0 || $movieId <= 0) {
+        return ['success' => false, 'message' => 'Erreur : profil ou film invalide.'];
+    }
+
+    if (favoriteExists($profileId, $movieId)) {
+        return ['success' => false, 'message' => 'Ce film est déjà dans vos favoris.'];
+    }
+
+    if (addFavorite($profileId, $movieId)) {
+        return ['success' => true, 'message' => 'Le film a été ajouté à vos favoris.'];
+    }
+    return ['success' => false, 'message' => 'Erreur lors de l\'ajout aux favoris.'];
+}
+
+function removeFavoriteController(){
+    $profileId = (int)($_POST['profile_id'] ?? 0);
+    $movieId = (int)($_POST['movie_id'] ?? 0);
+
+    if ($profileId <= 0 || $movieId <= 0) {
+        return ['success' => false, 'message' => 'Erreur : profil ou film invalide.'];
+    }
+
+    if (!favoriteExists($profileId, $movieId)) {
+        return ['success' => false, 'message' => 'Ce film n\'est pas dans vos favoris.'];
+    }
+
+    if (removeFavorite($profileId, $movieId)) {
+        return ['success' => true, 'message' => 'Le film a été retiré de vos favoris.'];
+    }
+    return ['success' => false, 'message' => 'Erreur lors de la suppression des favoris.'];
+}
+
+function readStatsController(){
+    return [
+        'totalProfiles' => getTotalProfiles(),
+        'averageFavorites' => getAverageFavorites(),
+        'totalFilms' => getTotalFilms(),
+        'topFavoriteFilm' => getTopFavoriteFilm(),
+        'topCategory' => getTopCategory()
+    ];
+}
+
+function searchMoviesController(){
+    $keyword = trim($_REQUEST['keyword'] ?? '');
+    $age = (int)($_REQUEST['age'] ?? 0);
+    if ($age < 0) $age = 0;
+    if (empty($keyword)) {
+        return [];
+    }
+    return searchMovies($keyword, $age);
+}
+
+function updateFeaturedController(){
+    $movieId = (int)($_POST['movie_id'] ?? 0);
+    $isFeatured = (int)($_POST['is_featured'] ?? -1);
+    if ($movieId <= 0 || ($isFeatured !== 0 && $isFeatured !== 1)) {
+        return ['success' => false, 'message' => 'Paramètres invalides.'];
+    }
+    if (updateFeaturedStatus($movieId, $isFeatured)) {
+        return ['success' => true, 'message' => 'Le statut du film a été mis à jour avec succès.'];
+    }
+    return ['success' => false, 'message' => 'Erreur lors de la mise à jour du statut du film.'];
 }
