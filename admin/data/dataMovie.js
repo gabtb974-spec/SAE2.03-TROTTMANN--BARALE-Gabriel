@@ -1,4 +1,4 @@
-let HOST_URL = "..";
+let HOST_URL = "https://trottmann-sae203.mmi-limoges.fr";
 
 let DataMovie = {};
 
