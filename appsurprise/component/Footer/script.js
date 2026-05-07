@@ -1,4 +1,4 @@
-let templateFile = await fetch(new URL('.//template.html', import.meta.url));
+let templateFile = await fetch(new URL('./template.html', import.meta.url));
 let template = await templateFile.text();
 
 let Footer = {};

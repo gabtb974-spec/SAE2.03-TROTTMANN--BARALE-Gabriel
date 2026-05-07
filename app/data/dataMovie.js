@@ -4,13 +4,13 @@ let HOST_URL = "..";
 let DataMovie = {};
 
 DataMovie.requestMovies = async function(age = 0){
-    let answer = await fetch(HOST_URL + "server/script.php?todo=readmovies&age=" + age);
+    let answer = await fetch(HOST_URL + "/server/script.php?todo=readmovies&age=" + age);
     let data = await answer.json();
     return data;
 }
 
 DataMovie.requestFeatured = async function(age = 0){
-    let answer = await fetch(HOST_URL + "server/script.php?todo=readfeaturedmovies&age=" + age);
+    let answer = await fetch(HOST_URL + "/server/script.php?todo=readfeaturedmovies&age=" + age);
     let data = await answer.json();
     return data;
 }
@@ -21,7 +21,7 @@ DataMovie.getMovieById = async function(id) {
 }
 
 DataMovie.searchMovies = async function(keyword, age = 0) {
-    let answer = await fetch(HOST_URL + "server/script.php?todo=searchmovies&keyword=" + encodeURIComponent(keyword) + "&age=" + age);
+    let answer = await fetch(HOST_URL + "/server/script.php?todo=searchmovies&keyword=" + encodeURIComponent(keyword) + "&age=" + age);
     let data = await answer.json();
     return data;
 }
