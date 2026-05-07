@@ -110,8 +110,8 @@ if ( isset($_REQUEST['todo']) ){
    * et un code de réponse HTTP 500 (Internal error), puis termine l'exécution du script (exit()).
    */
   if ($data===false){
-    echo json_encode('[error] Controller returns false');
     http_response_code(500); // 500 == "Internal error"
+    echo json_encode('[error] Controller returns false');
     exit();
   }
 
